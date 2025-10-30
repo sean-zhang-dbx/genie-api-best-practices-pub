@@ -188,8 +188,9 @@ See the `genie_api_demo.ipynb` notebook for comprehensive usage examples includi
 
 ### Stress Test 
 MLflow trace showing exponential backoff 
-<img width="1297" height="544" alt="image" src="https://github.com/user-attachments/assets/cd8849f4-acc1-4be9-acf3-b502277ccd36" />
+<img width="1179" height="540" alt="image" src="https://github.com/user-attachments/assets/5ef29a4f-f1a8-4863-9ce5-b31b1a818bdc" />
+
 Custom log trace showing exponential backoff
-<img width="1035" height="523" alt="image" src="https://github.com/user-attachments/assets/867dc8d7-7087-40fd-9a04-1a94cd668bc7" />
+<img width="1089" height="550" alt="image" src="https://github.com/user-attachments/assets/2e583457-ef78-4701-b98c-42837a91df4b" />
 
 
