@@ -9,7 +9,7 @@ A starter Python package for interacting with the Databricks Genie API, featurin
 ## Package Structure
 
 ```
-genie-queueing-backoff/
+genie-api-best-practices/
 ├── __init__.py              # Package initialization and exports
 ├── genie_client.py          # Main GenieClient class
 ├── stress_test.py           # Stress testing utilities
