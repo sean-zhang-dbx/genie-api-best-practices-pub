@@ -1,6 +1,6 @@
 # Genie API Client Package
 
-A starter Python package for interacting with the Databricks Genie API, featuring error handling, exponential backoff, and stress testing capabilities.
+A starter Python repo for interacting with the Databricks Genie API, featuring error handling, exponential backoff, and stress testing capabilities.
 
 **Author:** Sean Zhang  
 **Version:** v0.1  
