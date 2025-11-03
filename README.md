@@ -79,7 +79,7 @@ The `.env` file is automatically ignored by git for security.
 
 ## Configuration Options
 
-### Default Timing Configuration Parameters (aligned with [Genie API best practices](https://docs.databricks.com/aws/en/genie/conversation-api))
+### Default Timing Configuration Parameters (aligned with [Genie API best practices](https://docs.databricks.com/aws/en/genie/conversation-api#-best-practices-for-using-the-genie-api))
 
 ```python
 timing_config = {
