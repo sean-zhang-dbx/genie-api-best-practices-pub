@@ -1,6 +1,6 @@
-# Genie API Client Package
+# Genie API Client Template
 
-A starter Python package for interacting with the Databricks Genie API, featuring error handling, exponential backoff, and stress testing capabilities.
+A starter Python repo for interacting with the Databricks Genie API, featuring error handling, exponential backoff, and stress testing capabilities. The purpose of this repo is to demonstrate back-off and stress testing, rather than a full end-to-end package to converse with Genie.
 
 **Author:** Sean Zhang  
 **Version:** v0.2  
@@ -84,7 +84,7 @@ The `.env` file is automatically ignored by git for security.
 
 ## Configuration Options
 
-### Default Timing Configuration Parameters (aligned with [Genie API best practices](https://docs.databricks.com/aws/en/genie/conversation-api))
+### Default Timing Configuration Parameters (aligned with [Genie API best practices](https://docs.databricks.com/aws/en/genie/conversation-api#-best-practices-for-using-the-genie-api))
 
 ```python
 timing_config = {
