@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# MLflow
+mlruns/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
