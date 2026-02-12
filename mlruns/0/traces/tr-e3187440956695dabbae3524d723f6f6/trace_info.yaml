@@ -1,0 +1,22 @@
+execution_duration_ms: 15111
+request_preview: '{"question": "Test question 14: What is the top 14 cancer type?",
+  "conversation_id": null}'
+request_time: '2026-02-12T15:17:59.894Z'
+response_preview: '{"id": "01f108260492144fa4bacd4507b79553", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f10826048a1fceb9394ee821cc025c", "user_id": 144330040803207,
+  "created_timestamp": 1770909480367, "last_updated_timestamp": 1770909489644, "status":
+  "COMPLETED", "content": "Test question 14: What is the top 14 cancer type?", "attachments":
+  [{"text": {"content": "The question cannot be answered because there is no information
+  about \"cancer type\" in the available data. The current schema only contains query
+  history and does not include any medical or cancer-related data."}, "attachment_id":
+  "01f10826090816ed9036018d06eecc81"}, {"suggested_questions": {"questions": ["What
+  are the top 10 most active Genie spaces in the last 30 days?", "What is the success
+  rate of queries by Genie space in the last 30 days?", "What is the average query
+  latency by user in the last 30 days?"]}, "attachment_id": "01f108260a1715b5887f391622cc8b11"}],
+  "auto_regenerate_count": 1, "message_id": "01...'
+state: OK
+trace_id: tr-e3187440956695dabbae3524d723f6f6
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

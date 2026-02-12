@@ -3,13 +3,13 @@
 A starter Python package for interacting with the Databricks Genie API, featuring error handling, exponential backoff, and stress testing capabilities.
 
 **Author:** Sean Zhang  
-**Version:** v0.1  
-**Date:** Oct 2025
+**Version:** v0.2  
+**Date:** Feb 2026
 
 ## Package Structure
 
 ```
-genie-queueing-backoff/
+genie-api-best-practices/
 ├── __init__.py              # Package initialization and exports
 ├── genie_client.py          # Main GenieClient class
 ├── stress_test.py           # Stress testing utilities
@@ -25,18 +25,19 @@ genie-queueing-backoff/
 
 ```python
 from genie_client import GenieClient
-from config import WORKSPACE_URL, PAT, SPACE_ID
+from config import SPACE_ID
 
-# Credentials are automatically loaded from .env file
-client = GenieClient(
-    space_id=SPACE_ID,
-    host=WORKSPACE_URL,
-    token=PAT
-)
+# Authentication is handled automatically by the Databricks SDK WorkspaceClient
+client = GenieClient(space_id=SPACE_ID)
 
-# Ask a question
+# Ask a question (starts a new conversation)
 result = client.ask_question("What is the most common cancer type?")
 print(result)
+
+# Follow up in the same conversation
+convo_id = result.get("conversation_id")
+followup = client.ask_question("Break that down by year", conversation_id=convo_id)
+print(followup)
 
 # View trace data
 trace_df = client.get_trace_df()
@@ -54,18 +55,22 @@ trace_df = client.get_trace_df()
    cp env_template.txt .env
    ```
 
-3. **Edit `.env` with your credentials:**
+3. **Edit `.env` with your Genie space ID:**
    ```bash
-   DATABRICKS_WORKSPACE_URL=https://your-workspace.cloud.databricks.com
-   DATABRICKS_PAT_TOKEN=dapi_your_actual_token_here  
    DATABRICKS_GENIE_SPACE_ID=your_actual_space_id
    ```
+
+4. **Authentication:** Handled automatically by the [Databricks SDK](https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html).
+   - **In Databricks notebooks:** Workspace auth is automatic.
+   - **Locally:** Uses `~/.databrickscfg` profiles or other supported auth methods.
 
 The `.env` file is automatically ignored by git for security.
 
 ## Key Features
 
 ### GenieClient (`genie_client.py`)
+- **SDK Authentication**: Uses `WorkspaceClient` for seamless auth across notebooks and local environments
+- **Conversation Follow-ups**: Continue existing conversations with `conversation_id`
 - **Exponential Backoff**: Automatic retry with exponential backoff and jitter for rate limits (HTTP 429)
 - **Configurable Polling**: Customizable polling intervals and timeout behavior
 - **MLflow Integration**: Comprehensive tracing of all API interactions
@@ -121,7 +126,8 @@ All API interactions are automatically traced with MLflow:
 import mlflow
 
 # Traces are automatically logged for:
-# - send_message(): Message sending with retry attempts
+# - start_conversation(): Start a new conversation with retry attempts
+# - create_message(): Follow up in an existing conversation
 # - get_message(): Polling for message status
 # - poll_until_complete(): Complete polling lifecycle
 # - ask_question(): End-to-end question flow
@@ -132,47 +138,31 @@ trace_df = client.get_trace_df()
 
 ## Security & Best Practices
 
-### Credential Management
+### Authentication
 
-The package uses a `.env` file to securely manage credentials:
+Authentication is handled by the Databricks SDK `WorkspaceClient`, which supports
+multiple methods automatically:
 
-- **Source code**: Contains only placeholder values (safe to commit)
-- **`.env` file**: Contains your actual credentials (git-ignored for security)
-- **`env_template.txt`**: Template file showing the required format
-- **Automatic loading**: Credentials loaded automatically when importing config
+- **Databricks notebooks:** Workspace-level auth (automatic, no configuration needed)
+- **Databricks CLI:** Uses `~/.databrickscfg` profiles
+- **Environment variables:** `DATABRICKS_HOST` + supported auth methods
+- **Azure, AWS, GCP:** Native cloud identity integration
 
-### Security Features
-
-1. **No real credentials in source code**: Only placeholder values are visible in config.py
-2. **Git-ignored credentials**: The `.env` file is excluded from version control  
-3. **Automatic warnings**: Alerts when using placeholder credentials
-4. **Environment fallback**: Works with system environment variables too
+See the [Databricks SDK Authentication docs](https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html) for all options.
 
 ### Best Practices
 
 1. **Never commit credentials**: The `.env` file is automatically git-ignored
-2. **Use real tokens**: Add your actual Databricks credentials to `.env` file
-3. **Rotate tokens regularly**: Set expiration dates on PAT tokens in Databricks
-4. **Monitor rate limits**: Use stress testing to understand your API limits
-5. **Configure timeouts**: Adjust `max_poll_wait` based on your use case
-
-### Alternative: Environment Variables
-
-Instead of `.env` file, you can set system environment variables:
-
-```bash
-export DATABRICKS_WORKSPACE_URL="https://your-workspace.cloud.databricks.com"
-export DATABRICKS_PAT_TOKEN="your-pat-token"
-export DATABRICKS_GENIE_SPACE_ID="your-space-id"
-```
+2. **Monitor rate limits**: Use stress testing to understand your API limits
+3. **Configure timeouts**: Adjust `max_poll_wait` based on your use case
 
 ## TODOs & Future Enhancements
 
 - [x] Secure credential management with .env files
+- [x] SDK-based authentication (WorkspaceClient)
+- [x] Conversation follow-up support
 - [ ] Develop AI/BI visualizations for log analysis  
-- [ ] Implement response-to-conversation features
 - [ ] Implement parsing and retrieval of attachments
-- [ ] Add workspace-based authentication option
 
 ## Currently Out of Scope
 
@@ -192,5 +182,3 @@ MLflow trace showing exponential backoff
 
 Custom log trace showing exponential backoff
 <img width="1089" height="550" alt="image" src="https://github.com/user-attachments/assets/2e583457-ef78-4701-b98c-42837a91df4b" />
-
-

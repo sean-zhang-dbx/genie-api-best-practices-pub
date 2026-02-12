@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/sean.zhang/Library/CloudStorage/GoogleDrive-sean.zhang%40databricks.com/My%20Drive/Projects/genie-api-best-practices-pub/mlruns/0/832b8f865a8e47eb89faf3f2f24a040d/artifacts
+end_time: 1770909357370
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 832b8f865a8e47eb89faf3f2f24a040d
+run_name: genie_stress_test
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1770909344791
+status: 3
+tags: []
+user_id: sean.zhang

@@ -4,9 +4,11 @@ Genie API Client Package
 A comprehensive package for interacting with the Databricks Genie API,
 featuring robust error handling, exponential backoff, and stress testing capabilities.
 
+Uses the Databricks SDK WorkspaceClient for authentication.
+
 Author: Sean Zhang
-Version: v0.1
-Date: Oct 2025
+Version: v0.2
+Date: Feb 2026
 """
 
 from .genie_client import GenieClient
@@ -16,12 +18,10 @@ from .config import (
     TIMING_CONFIG_EARLY_BACKOFF,
     TIMING_CONFIG_EARLY_TIMEOUT,
     DEFAULT_STRESS_TEST_PARAMS,
-    WORKSPACE_URL,
-    PAT,
     SPACE_ID
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Sean Zhang"
 
 __all__ = [
@@ -31,7 +31,5 @@ __all__ = [
     "TIMING_CONFIG_EARLY_BACKOFF",
     "TIMING_CONFIG_EARLY_TIMEOUT",
     "DEFAULT_STRESS_TEST_PARAMS",
-    "WORKSPACE_URL",
-    "PAT",
     "SPACE_ID"
 ]

@@ -1,0 +1,12 @@
+execution_duration_ms: 237
+request_preview: '{"content": "What is the schema?", "max_retries": 10}'
+request_time: '2026-02-12T15:12:00.075Z'
+response_preview: '{"conversation_id": "01f108252de418aa8ccf221b7859d115", "message_id":
+  "01f108252dec13baaa535f11141def72", "status": "SUBMITTED", "status_code": 200, "question_id":
+  "edab6d36-890d-4d53-b68b-60a62d638f4f", "message_content": "What is the schema?"}'
+state: OK
+trace_id: tr-f7f97a303878a09be2a8f068e6c24055
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

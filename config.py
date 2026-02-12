@@ -4,35 +4,33 @@ Configuration settings for Genie API client and testing.
 This module contains configuration constants and presets for different
 scenarios and testing environments.
 
+Authentication is handled automatically by the Databricks SDK WorkspaceClient
+(workspace auth in notebooks, env vars, ~/.databrickscfg profiles, etc.).
+
 Author: Sean Zhang
-Version: v0.1
-Date: Oct 2025
+Version: v0.2
+Date: Feb 2026
 """
 
-# Load environment variables from .env file
 import os
 from pathlib import Path
 
-# Load .env file if it exists
+# Load .env file if it exists (for SPACE_ID and any SDK env vars)
 try:
     from dotenv import load_dotenv
-    
-    # Look for .env file in the same directory as this config file
+
     env_path = Path(__file__).parent / '.env'
     if env_path.exists():
         load_dotenv(env_path)
-        print(f"Loaded credentials from {env_path}")
+        print(f"Loaded environment from {env_path}")
     else:
         print(f"No .env file found at {env_path}")
-        print("Copy env_template.txt to .env and add your credentials")
-        
-except ImportError:
-    print("⚠ python-dotenv not installed. Install with: pip install python-dotenv")
-    print("  Or set environment variables manually")
+        print("Copy env_template.txt to .env and set DATABRICKS_GENIE_SPACE_ID")
 
-# Get credentials from environment variables (with placeholder fallbacks)
-WORKSPACE_URL = os.getenv('DATABRICKS_WORKSPACE_URL')
-PAT = os.getenv('DATABRICKS_PAT_TOKEN') 
+except ImportError:
+    pass
+
+# Genie Space ID from environment
 SPACE_ID = os.getenv('DATABRICKS_GENIE_SPACE_ID')
 
 # Default timing configuration for normal operations
@@ -62,31 +60,3 @@ DEFAULT_STRESS_TEST_PARAMS = {
     "num_questions": 10,
     "time_frame_s": 30
 }
-
-# Security validation
-import warnings
-
-def validate_config():
-    """Validate and warn about configuration security."""
-    # Check if still using placeholder values
-    if PAT == 'dapi_your_token_here' or len(PAT) < 30:
-        warnings.warn(
-            "Using placeholder PAT token! Create a .env file with your actual credentials. "
-            "Never commit real credentials to version control!",
-            UserWarning
-        )
-    
-    if WORKSPACE_URL == 'https://your-workspace.cloud.databricks.com':
-        warnings.warn(
-            "Using placeholder workspace URL! Update your .env file with your actual workspace URL.",
-            UserWarning
-        )
-        
-    if SPACE_ID == 'your_space_id_here' or len(SPACE_ID) < 10:
-        warnings.warn(
-            "Using placeholder space ID! Update your .env file with your actual Genie space ID.", 
-            UserWarning
-        )
-
-# Auto-validate on import
-validate_config()

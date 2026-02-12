@@ -1,0 +1,22 @@
+execution_duration_ms: 196946
+request_preview: '{"question": "Test question 20: What is the top 20 cancer type?",
+  "conversation_id": null}'
+request_time: '2026-02-12T15:18:08.070Z'
+response_preview: '{"id": "01f1082675ce1134b17a10f75b024ffe", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f1082675c7171bbfb2db79d66516e8", "user_id": 144330040803207,
+  "created_timestamp": 1770909670341, "last_updated_timestamp": 1770909679670, "status":
+  "COMPLETED", "content": "Test question 20: What is the top 20 cancer type?", "attachments":
+  [{"text": {"content": "This database does not contain any information about cancer
+  types. It only tracks query history and usage analytics for Databricks Genie spaces."},
+  "attachment_id": "01f10826779f113d9b5247230478a941"}, {"suggested_questions": {"questions":
+  ["What are the top 20 most active Genie spaces?", "What is the success rate of queries
+  by Genie space for the top 20 spaces?", "What are the top 20 users by number of
+  queries executed in the last 30 days?"]}, "attachment_id": "01f108267b5a1ddfb77d96c813e709d1"}],
+  "auto_regenerate_count": 0, "message_id": "01f1082675ce1134b17a10f75b024ffe", "status_code":
+  200}'
+state: OK
+trace_id: tr-2854d636f9371a8b5a8f54d29a8137cc
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

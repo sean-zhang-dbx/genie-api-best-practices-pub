@@ -1,0 +1,20 @@
+execution_duration_ms: 8049
+request_preview: '{"question": "What tables are available?", "conversation_id": null}'
+request_time: '2026-02-12T15:11:37.173Z'
+response_preview: '{"id": "01f1082520841065af482f20092b8a46", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f10825207b1dd2ba19f5e71bc1757a", "user_id": 144330040803207,
+  "created_timestamp": 1770909097753, "last_updated_timestamp": 1770909101123, "status":
+  "COMPLETED", "content": "What tables are available?", "attachments": [{"text": {"content":
+  "There is one table available: system.query.history. This table contains query history
+  data, including details about SQL queries executed in the workspace."}, "attachment_id":
+  "01f1082521991eea9d0ebe060857d980"}, {"suggested_questions": {"questions": ["What
+  are the top 10 most active Genie spaces?", "What is the success rate by Genie space?",
+  "Show me all failed queries with error messages."]}, "attachment_id": "01f1082522831baa97a95e9609691310"}],
+  "auto_regenerate_count": 0, "message_id": "01f1082520841065af482f20092b8a46", "status_code":
+  200}'
+state: OK
+trace_id: tr-aa813370bbfdaad62a3175c13c9c84dd
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

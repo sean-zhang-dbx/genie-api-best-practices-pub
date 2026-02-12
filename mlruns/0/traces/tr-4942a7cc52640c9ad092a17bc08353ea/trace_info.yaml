@@ -1,0 +1,22 @@
+execution_duration_ms: 14855
+request_preview: '{"question": "Test question 2: What is the top 2 cancer type?",
+  "conversation_id": null}'
+request_time: '2026-02-12T15:14:14.308Z'
+response_preview: '{"id": "01f108257ded13f89ef189ab5e3220e2", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f108257de51684a29e593240a324c6", "user_id": 144330040803207,
+  "created_timestamp": 1770909254470, "last_updated_timestamp": 1770909262732, "status":
+  "COMPLETED", "content": "Test question 2: What is the top 2 cancer type?", "attachments":
+  [{"text": {"content": "This question is irrelevant to the available database schema,
+  which only contains query history and usage analytics for Databricks Genie spaces,
+  not medical or cancer-related data. Please ask a question related to query analytics
+  or Genie space usage."}, "attachment_id": "01f108257f8514c08ce070885996e8ca"}, {"suggested_questions":
+  {"questions": ["What are the top 2 most active Genie spaces by total queries?",
+  "What are the top 2 users by number of queries executed in the last 30 days?", "What
+  are the top 2 Genie spaces with the highest average query latency in the last 30
+  days?"]}, "attachment_id": "01f1082582d4196b...'
+state: OK
+trace_id: tr-4942a7cc52640c9ad092a17bc08353ea
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

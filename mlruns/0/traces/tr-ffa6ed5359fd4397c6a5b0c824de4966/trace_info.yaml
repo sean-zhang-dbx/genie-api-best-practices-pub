@@ -1,0 +1,22 @@
+execution_duration_ms: 14797
+request_preview: '{"question": "Test question 9: What is the top 9 cancer type?",
+  "conversation_id": null}'
+request_time: '2026-02-12T15:14:17.599Z'
+response_preview: '{"id": "01f108257fe4164a8f068763ae869961", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f108257fdb1e32a7116ed8b14924e4", "user_id": 144330040803207,
+  "created_timestamp": 1770909257768, "last_updated_timestamp": 1770909270909, "status":
+  "COMPLETED", "content": "Test question 9: What is the top 9 cancer type?", "attachments":
+  [{"text": {"content": "The available data does not include any information about
+  cancer types, so this question cannot be answered with the current schema. If you
+  have another question about query history or Genie space analytics, please let me
+  know!"}, "attachment_id": "01f1082583f5124b85377de71765743c"}, {"suggested_questions":
+  {"questions": ["What are the top 9 most active Genie spaces?", "What is the success
+  rate of queries in the top 9 Genie spaces?", "What is the average query latency
+  for the top 9 Genie spaces?"]}, "attachment_id": "01f1082587b6160bacc8050690f7cafd"}],
+  "auto_regenerate_count": 1, "message_id": "01f108257fe4164a8f06...'
+state: OK
+trace_id: tr-ffa6ed5359fd4397c6a5b0c824de4966
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

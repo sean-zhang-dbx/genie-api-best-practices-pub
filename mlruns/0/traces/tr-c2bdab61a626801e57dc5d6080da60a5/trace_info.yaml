@@ -1,0 +1,21 @@
+execution_duration_ms: 15237
+request_preview: '{"question": "How many rows are in the table?"}'
+request_time: '2026-02-12T15:09:54.597Z'
+response_preview: '{"id": "01f10824e35c1563bb6ce724f4963b44", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f10824e3551418834617f5a351ce7e", "user_id": 144330040803207,
+  "created_timestamp": 1770908995152, "last_updated_timestamp": 1770909006941, "status":
+  "COMPLETED", "content": "How many rows are in the table?", "attachments": [{"query":
+  {"query": "SELECT COUNT(*) AS row_count FROM `system`.`query`.`history`", "description":
+  "You want to know the total number of rows in the system.query.history table.",
+  "statement_id": "01f10824-e4b6-11b0-bb94-605cd6b5d276", "query_result_metadata":
+  {"row_count": 1}}, "attachment_id": "01f10824e4ae1c35b7d2421b57ed2c5a"}, {"suggested_questions":
+  {"questions": ["How many queries have been executed in the last 30 days?", "What
+  is the distribution of execution statuses (FINISHED, FAILED, CANCELED) in the query
+  history?", "Who are the top 5 users by number of queries executed in the last 30
+  days?"]}, "attachment_id": "01f10824e6491fcd928c898a3f615d...'
+state: OK
+trace_id: tr-c2bdab61a626801e57dc5d6080da60a5
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT

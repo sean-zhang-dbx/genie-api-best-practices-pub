@@ -1,6 +1,11 @@
-# Copy this file to .env and fill in your actual credentials
+# Copy this file to .env and fill in your actual values
 # The .env file will be ignored by git for security
 
-DATABRICKS_WORKSPACE_URL=https://your-workspace.cloud.databricks.com
-DATABRICKS_PAT_TOKEN=dapi_your_personal_access_token_here
+# Required: Your Genie space ID
 DATABRICKS_GENIE_SPACE_ID=your_genie_space_id_here
+
+# Authentication is handled by the Databricks SDK WorkspaceClient.
+# In Databricks notebooks: automatic (no env vars needed).
+# Locally: configure a ~/.databrickscfg profile or set DATABRICKS_HOST
+# and authenticate via OAuth, CLI, or another supported method.
+# See: https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html

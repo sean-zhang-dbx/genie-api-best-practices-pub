@@ -1,0 +1,21 @@
+execution_duration_ms: 14816
+request_preview: '{"question": "Test question 2: What is the top 2 table?"}'
+request_time: '2026-02-12T15:10:14.051Z'
+response_preview: '{"id": "01f10824eeb81dab9257b2f688b8ec94", "space_id": "01f1081d2c7e10048d0f69bb42677357",
+  "conversation_id": "01f10824eeb2138ebd24fb5dd495c01d", "user_id": 144330040803207,
+  "created_timestamp": 1770909014213, "last_updated_timestamp": 1770909023044, "status":
+  "COMPLETED", "content": "Test question 2: What is the top 2 table?", "attachments":
+  [{"query": {"query": "SELECT ''system.query.history'' AS table_name LIMIT 2", "description":
+  "You want to see the names of the top 2 tables, but since only one table exists
+  in the schema, it simply returns that table name.", "statement_id": "01f10824-f11b-1643-a7f2-2e38e0fdd82f",
+  "query_result_metadata": {"row_count": 1}}, "attachment_id": "01f10824f11516e38dd4514611c52be5"},
+  {"text": {"content": "The only table listed is **system.query.history**. No additional
+  tables are shown in the results."}}, {"text": {"content": "Would you like to see
+  the top 2 tables ranked by usage or size instead of just listing table names?"},
+  "attachment_id": "01f10824...'
+state: OK
+trace_id: tr-df61790c9ba322fcd3dda550fc493f36
+trace_location:
+  mlflow_experiment:
+    experiment_id: '0'
+  type: MLFLOW_EXPERIMENT
