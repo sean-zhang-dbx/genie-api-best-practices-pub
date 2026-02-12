@@ -7,6 +7,11 @@ scenarios and testing environments.
 Authentication is handled automatically by the Databricks SDK WorkspaceClient
 (workspace auth in notebooks, env vars, ~/.databrickscfg profiles, etc.).
 
+Note: The backoff configurations below (base_delay, max_delay, jitter) apply to
+429 retry handling in GenieClient (genie_client.py), which uses raw `requests`.
+When using GenieClientSDK (genie_client_sdk.py), 429 retries are managed by the
+SDK using server-guided Retry-After delays.
+
 Author: Sean Zhang
 Version: v0.2
 Date: Feb 2026
@@ -34,6 +39,8 @@ except ImportError:
 SPACE_ID = os.getenv('DATABRICKS_GENIE_SPACE_ID')
 
 # Default timing configuration for normal operations
+# Note: base_delay, max_delay, and jitter only apply to 429 retries in GenieClient (raw requests).
+# GenieClientSDK's 429 retries are handled by the SDK's retried() decorator (~60s flat delay).
 DEFAULT_TIMING_CONFIG = {
     "base_delay": 1.0,              # Base delay for exponential backoff (seconds)
     "max_delay": 60.0,              # Maximum delay for exponential backoff (seconds)

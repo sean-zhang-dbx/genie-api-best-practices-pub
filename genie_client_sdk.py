@@ -1,25 +1,22 @@
 """
-Genie Client for interacting with the Databricks Genie API.
+Genie Client (SDK version) for interacting with the Databricks Genie API.
 
-This module provides a robust client for sending messages to the Genie API,
-polling for responses, and handling rate limits with exponential backoff.
+This module provides a client that uses the Databricks SDK's internal HTTP client
+(_api.do) for all API calls. The SDK handles authentication and retries (including
+429 rate limits) automatically using server-guided Retry-After values.
 
-Uses the Databricks SDK WorkspaceClient for authentication (no manual PAT tokens),
-but uses raw `requests` for HTTP calls to retain full visibility and control over
-rate limiting (429) and custom exponential backoff.
+SDK retry behavior:
+    The SDK's _api.do() includes built-in retry handling that:
+    - Manages 429 responses automatically using the server's Retry-After header (~60s)
+    - Retries with server-guided delays for up to 20 minutes
+    - Logs retry events at DEBUG level on the 'databricks.sdk' logger
 
-Why raw requests instead of SDK's _api.do()?
-    The SDK's _api.do() includes built-in retry handling that automatically
-    manages 429 responses using the server's Retry-After header (~60s).
-    This is convenient but means retry behavior is handled at the SDK layer.
-    By using raw requests, this client provides:
-    - Full visibility into 429 status codes in application logs and traces
-    - Custom exponential backoff with jitter (per Genie API best practices)
-    - Configurable retry timing via timing_config
-    See GenieClientSDK for the SDK-managed alternative.
+    Since the SDK handles 429 retries at the SDK layer, rate limit events will
+    not appear in application-level trace logs. Set debug=True to enable DEBUG
+    logging and observe retry behavior.
 
-For a fully SDK-managed version (where the SDK handles retries internally),
-see GenieClientSDK in genie_client_sdk.py.
+For application-level 429 visibility and custom backoff, use GenieClient from
+genie_client.py instead (uses raw requests for HTTP, SDK only for auth).
 
 Author: Sean Zhang
 Version: v0.2
@@ -29,7 +26,6 @@ Date: Feb 2026
 import time
 import random
 import logging
-import requests
 from typing import Optional, Dict, Any
 from datetime import datetime
 import pandas as pd
@@ -42,18 +38,17 @@ from databricks.sdk import WorkspaceClient
 logger = logging.getLogger(__name__)
 
 
-class GenieClient:
+class GenieClientSDK:
     """
-    Client for interacting with the Genie API, supporting message sending, polling, and trace logging.
+    SDK-based client for interacting with the Genie API.
 
-    Authentication is handled by the Databricks SDK WorkspaceClient, which automatically
-    picks up credentials from the environment (workspace auth in notebooks, ~/.databrickscfg,
-    environment variables, etc.). Auth headers are fetched dynamically per-request to
-    support token refresh (OAuth, CLI tokens).
+    Uses the Databricks SDK's _api.do() for all HTTP calls. The SDK automatically
+    handles authentication and retries (including 429 rate limits) using the server's
+    Retry-After header. Rate limit retries are managed at the SDK layer and logged
+    at DEBUG level. Set debug=True to observe retry behavior in logs.
 
-    HTTP calls use raw `requests` (not SDK's _api.do()) for full control over retry
-    behavior and 429 visibility in trace logs. This allows custom exponential backoff
-    with jitter as recommended by the Genie API best practices documentation.
+    For application-level 429 visibility and custom backoff strategies, use
+    GenieClient from genie_client.py instead (SDK auth + raw requests).
 
     Timing parameters (jitter, delay, polling, etc.) are organized in a timing_config dictionary.
     """
@@ -67,7 +62,7 @@ class GenieClient:
         **kwargs
     ):
         """
-        Initialize the GenieClient.
+        Initialize the GenieClientSDK.
 
         Args:
             space_id (str): Genie space identifier.
@@ -82,26 +77,27 @@ class GenieClient:
                 - initial_poll_interval (float): Initial polling interval in seconds (default: 7.0)
                 - max_poll_wait (float): Maximum total wait time in seconds (default: 600.0)
                 - poll_backoff_after (float): Time after which polling interval increases and switches to exponential backoff (default: 120.0)
-            debug (bool): If True, enables debug logging. Default: False.
+            debug (bool): If True, enables debug logging for the SDK (shows retry/backoff
+                events, HTTP requests, etc.). Default: False.
             **kwargs: Additional keyword arguments (unused).
         """
         self.space_id = space_id
         self._workspace_client = client or WorkspaceClient()
+        self._genie = self._workspace_client.genie
+        self._headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
 
-        # Extract host from SDK config for raw requests
-        self.host = self._workspace_client.config.host.rstrip("/")
-        self.base = f"{self.host}/api/2.0/genie/spaces/{self.space_id}"
-
-        # Enable debug logging
+        # Enable debug logging for SDK retry events and HTTP calls
         if debug:
             logging.basicConfig(
                 format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
                 level=logging.DEBUG,
             )
+            logging.getLogger("databricks.sdk").setLevel(logging.DEBUG)
             logger.setLevel(logging.DEBUG)
-            logger.debug(f"Debug logging enabled for GenieClient")
-            logger.debug(f"Host: {self.host}")
-            logger.debug(f"Auth type: {self._workspace_client.config.auth_type}")
+            logger.debug("Debug logging enabled for GenieClientSDK and Databricks SDK")
 
         # Set timing config with defaults, then update with user values
         default_timing = {
@@ -117,16 +113,25 @@ class GenieClient:
         self.timing_config = default_timing
         self.trace = []  # For tracing all API events
 
-    def _get_headers(self) -> dict:
+    def _do(self, method: str, path: str, body: Optional[dict] = None) -> dict:
         """
-        Build request headers with fresh auth credentials from the SDK.
+        Make an API call through the SDK's authenticated HTTP client.
 
-        Called per-request to support token refresh (OAuth, CLI tokens, etc.).
+        Note: The SDK manages 429 retries at the SDK layer. Rate limit events
+        are logged at DEBUG level; set debug=True to observe them.
+
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            path: API path (e.g. /api/2.0/genie/spaces/...)
+            body: Optional request body dict.
+
+        Returns:
+            Parsed JSON response as a dict.
         """
-        headers = {"Content-Type": "application/json"}
-        # config.authenticate() returns a dict like {"Authorization": "Bearer ..."}
-        headers.update(self._workspace_client.config.authenticate())
-        return headers
+        kwargs = {"headers": self._headers}
+        if body is not None:
+            kwargs["body"] = body
+        return self._genie._api.do(method, path, **kwargs)
 
     def log_trace(self, **kwargs):
         """Log an event to the trace with timestamp."""
@@ -163,11 +168,10 @@ class GenieClient:
         return df
 
     @mlflow.trace()
-    def exponential_backoff(self, attempt: int, base_delay: float):
+    def exponential_backoff(self, attempt: int, base_delay: int):
         """Apply exponential backoff with jitter."""
         delay = min(base_delay * (2 ** attempt), self.timing_config["max_delay"])
         delay += random.uniform(0, self.timing_config["jitter"])
-        logger.debug(f"Backoff: attempt={attempt}, sleeping {delay:.1f}s")
         time.sleep(delay)
         return delay
 
@@ -175,85 +179,60 @@ class GenieClient:
         """
         Internal helper: POST content to a Genie URL with retry logic for rate limits.
 
-        Uses raw requests (not SDK _api.do()) so that 429 responses are visible at the
-        application layer and handled with custom exponential backoff + jitter.
+        Note: The SDK manages 429 retries at the SDK layer. The retry logic
+        here serves as a fallback for other transient errors.
         """
         question_id = str(uuid.uuid4())
 
         for attempt in range(max_retries):
             try:
-                resp = requests.post(url, json={"content": content}, headers=self._get_headers(), timeout=30)
-                resp_content = None
-
-                try:
-                    resp_content = resp.json()
-                except Exception:
-                    resp_content = resp.text
+                resp = self._do("POST", url, body={"content": content})
 
                 self.log_trace(
                     phase=phase_prefix,
                     content=content,
-                    status_code=resp.status_code,
+                    status_code=200,
                     question_id=question_id,
-                    response_content=resp_content
+                    response_content=resp
                 )
 
-                if resp.status_code == 200:
-                    data = resp_content if isinstance(resp_content, dict) else {}
+                # Response may nest under "conversation"/"message" keys or be flat
+                convo = resp.get("conversation", resp)
+                msg = resp.get("message", resp)
 
-                    # Response may nest under "conversation"/"message" keys or be flat
-                    convo = data.get("conversation", data)
-                    msg = data.get("message", data)
-
-                    conversation_id = convo.get("conversation_id", convo.get("id"))
-                    message_id = msg.get("message_id", msg.get("id"))
-
-                    self.log_trace(
-                        phase=f"{phase_prefix}_success",
-                        conversation_id=conversation_id,
-                        message_id=message_id,
-                        status=msg.get("status"),
-                        question_id=question_id,
-                        message_content=msg.get("content")
-                    )
-
-                    return {
-                        "conversation_id": conversation_id,
-                        "message_id": message_id,
-                        "status": msg.get("status"),
-                        "status_code": resp.status_code,
-                        "question_id": question_id,
-                        "message_content": msg.get("content")
-                    }
-
-                if resp.status_code == 429:
-                    self.log_trace(
-                        phase=f"{phase_prefix}_rate_limited",
-                        attempt=attempt,
-                        question_id=question_id,
-                        status_code=resp.status_code
-                    )
-                    logger.debug(f"429 rate limited on {phase_prefix} (attempt {attempt})")
-                    self.exponential_backoff(attempt, self.timing_config["base_delay"])
-                    continue
+                conversation_id = convo.get("conversation_id", convo.get("id"))
+                message_id = msg.get("message_id", msg.get("id"))
 
                 self.log_trace(
-                    phase=f"{phase_prefix}_error",
-                    error=resp.text,
-                    status_code=resp.status_code,
-                    question_id=question_id
+                    phase=f"{phase_prefix}_success",
+                    conversation_id=conversation_id,
+                    message_id=message_id,
+                    status=msg.get("status"),
+                    question_id=question_id,
+                    message_content=msg.get("content")
                 )
+
                 return {
-                    "error": f"{resp.status_code} {resp.text}",
-                    "status": "FAIL",
-                    "status_code": resp.status_code,
-                    "question_id": question_id
+                    "conversation_id": conversation_id,
+                    "message_id": message_id,
+                    "status": msg.get("status"),
+                    "status_code": 200,
+                    "question_id": question_id,
+                    "message_content": msg.get("content")
                 }
 
             except Exception as e:
-                self.log_trace(phase=f"{phase_prefix}_exception", error=str(e), question_id=question_id)
+                error_str = str(e)
+
+                # Handle rate limiting (429) -- note: SDK typically handles these first
+                if "429" in error_str or "Too Many Requests" in error_str:
+                    self.log_trace(phase=f"{phase_prefix}_rate_limited", attempt=attempt, question_id=question_id)
+                    self.exponential_backoff(attempt, self.timing_config["base_delay"])
+                    continue
+
+                self.log_trace(phase=f"{phase_prefix}_exception", error=error_str, question_id=question_id)
                 return {
-                    "error": str(e),
+                    "error": error_str,
                     "status": "FAIL",
                     "status_code": None,
                     "question_id": question_id
@@ -270,13 +249,13 @@ class GenieClient:
     @mlflow.trace()
     def start_conversation(self, content: str, max_retries: int = 10) -> Dict[str, Any]:
         """Start a new conversation with the Genie API."""
-        url = f"{self.base}/start-conversation"
+        url = f"/api/2.0/genie/spaces/{self.space_id}/start-conversation"
         return self._send_with_retries(url, content, phase_prefix="start_conversation", max_retries=max_retries)
 
     @mlflow.trace()
     def create_message(self, conversation_id: str, content: str, max_retries: int = 10) -> Dict[str, Any]:
         """Send a follow-up message in an existing conversation."""
-        url = f"{self.base}/conversations/{conversation_id}/messages"
+        url = f"/api/2.0/genie/spaces/{self.space_id}/conversations/{conversation_id}/messages"
         return self._send_with_retries(url, content, phase_prefix="create_message", max_retries=max_retries)
 
     # Backward-compatible alias
@@ -285,52 +264,31 @@ class GenieClient:
     @mlflow.trace()
     def get_message(self, conversation_id: str, message_id: str, question_id: Optional[str] = None) -> Dict[str, Any]:
         """Get a message from the Genie API."""
-        url = f"{self.base}/conversations/{conversation_id}/messages/{message_id}"
+        url = f"/api/2.0/genie/spaces/{self.space_id}/conversations/{conversation_id}/messages/{message_id}"
 
         try:
-            resp = requests.get(url, headers=self._get_headers(), timeout=30)
-            resp_content = None
-
-            try:
-                resp_content = resp.json()
-            except Exception:
-                resp_content = resp.text
+            resp = self._do("GET", url)
 
             self.log_trace(
                 phase="get_message",
                 conversation_id=conversation_id,
                 message_id=message_id,
-                status_code=resp.status_code,
+                status_code=200,
                 question_id=question_id,
-                response_content=resp_content
+                response_content=resp
             )
 
-            if resp.status_code == 200:
-                result = resp_content if isinstance(resp_content, dict) else {}
-                result["status_code"] = resp.status_code
-
-                self.log_trace(
-                    phase="get_message_success",
-                    conversation_id=conversation_id,
-                    message_id=message_id,
-                    question_id=question_id,
-                    message_content=result.get("content")
-                )
-
-                return result
+            resp["status_code"] = 200
 
             self.log_trace(
-                phase="get_message_error",
-                error=resp.text,
-                status_code=resp.status_code,
-                question_id=question_id
+                phase="get_message_success",
+                conversation_id=conversation_id,
+                message_id=message_id,
+                question_id=question_id,
+                message_content=resp.get("content")
             )
-            return {
-                "error": f"{resp.status_code} {resp.text}",
-                "status": "FAIL",
-                "status_code": resp.status_code,
-                "question_id": question_id
-            }
+
+            return resp
 
         except Exception as e:
             error_str = str(e)
